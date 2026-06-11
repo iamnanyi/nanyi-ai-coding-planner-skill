@@ -20,10 +20,10 @@ AI Coding 在复杂任务中容易遇到这些问题：
 - 上下文过长后遗漏关键约束
 - 规划和实际代码状态脱节
 - 后续对话缺少可靠交接信息
-- 多任务并行时没有项目级进度总账
+- 多任务并行时缺少互不覆盖的任务进度总账
 - 团队里不同工具、不同模型的额度和可用性不稳定
 
-`nanyi-ai-coding-planner-skill` 通过任务文档、项目总账和单任务 handoff，把这些信息固定下来。
+`nanyi-ai-coding-planner-skill` 通过独立任务目录、任务总账和单任务 handoff，把这些信息固定下来。
 
 这样做的结果是：任务不必强绑定某一个 AI 工具。哪个工具还有额度，就根据 `next-prompt.md` 复制当前 Prompt 文件到哪个工具里继续；模型能力普通一些也可以完成小步任务，因为上下文和约束已经写在文档中。
 
@@ -32,7 +32,7 @@ AI Coding 在复杂任务中容易遇到这些问题：
 1. 读取项目规则文件，例如 `CLAUDE.md`、`AGENTS.md`、`README`、`Makefile` 或 CI 配置。
 2. 明确目标、非目标、允许修改范围、禁止修改范围和完成标准。
 3. 基于真实代码扫描结果生成任务规划。
-4. 维护项目级进度总账和单任务交接文档。
+4. 维护任务目录内进度总账和单任务交接文档。
 5. 将任务拆成小步。
 6. 只生成当前下一步执行 Prompt，不一次性生成所有后续 Prompt。
 
@@ -89,8 +89,8 @@ cp -R nanyi-ai-coding-planner-skill/nanyi-ai-coding-planner-skill ~/.claude/skil
 
 ```text
 docs/tasks/
-  project-progress-ledger.md
   homepage-popup-rules/
+    project-progress-ledger.md
     plan.md
     steps.md
     next-prompt.md
@@ -102,7 +102,8 @@ docs/tasks/
 
 其中：
 
-- `project-progress-ledger.md` 记录项目级长期进度、跨任务阻塞和任务索引。
+- `homepage-popup-rules/` 是单个大任务的独立文档目录；每个新大任务都应创建自己的 `{task_slug}/` 目录。
+- `project-progress-ledger.md` 放在对应任务目录内，记录该大任务的长期进度、阻塞和任务索引。
 - `plan.md` 记录单个任务的目标、边界、风险、代码现状和方案。
 - `steps.md` 记录小步执行计划。
 - `next-prompt.md` 保存当前下一步执行 Prompt 的入口，指向 `prompts/` 中当前应执行的 Prompt。
@@ -140,11 +141,11 @@ nanyi-ai-coding-planner-skill/templates/task-handoff-template.md
 ## 9. 推荐使用方式
 
 - 在较大功能、重构、Bug 修复或跨模块改造开始前先使用本 Skill。
-- 为每个任务指定统一的任务文档根目录，例如 `docs/tasks` 或 `.ai_temp/docs/tasks`。
+- 为所有任务指定统一的任务集合根目录，例如 `docs/tasks` 或 `.ai_temp/docs/tasks`；每个大任务会在该根目录下创建独立 `{task_slug}/` 文件夹。
 - 每一轮执行后要求执行者更新 `handoff.md`。
 - 人工确认当前步骤后，再生成下一步 Prompt。
 - 旧 Prompt 保存在任务的 `prompts/` 目录供人工追溯；除非需要诊断或审计，不要把旧 Prompt 提供给下一轮执行。
-- 如果任务发生暂停、阻塞或目标变化，同步更新项目总账。
+- 如果任务发生暂停、阻塞或目标变化，同步更新该任务目录内的 `project-progress-ledger.md`。
 - 每步代码修改范围会尽量控制得比较小，建议自己审一遍；也可以把 `docs/tasks` 下的规划、进度和 check list 单独交给其他 AI 做辅助 Review。
 
 ## 10. 安全说明
@@ -161,7 +162,7 @@ nanyi-ai-coding-planner-skill/templates/task-handoff-template.md
 - 跨模块重构前的影响范围分析
 - 长任务拆分为多轮 AI Coding
 - 需要人工 Review 的渐进式开发
-- 需要保留项目级进度总账和单任务交接记录的项目
+- 需要保留任务进度总账和单任务交接记录的项目
 
 ## 12. 不适合场景
 

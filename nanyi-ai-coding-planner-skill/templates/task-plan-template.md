@@ -8,7 +8,7 @@
 - 创建时间：YYYY-MM-DD
 - 最近更新时间：YYYY-MM-DD
 - 当前状态：未开始 / 规划中 / 等待确认 / 进行中 / 阻塞 / 暂停 / 已完成 / 取消
-- 关联总账：{TASK_DOC_ROOT}/project-progress-ledger.md
+- 关联总账：{TASK_DOC_ROOT}/{task_slug}/project-progress-ledger.md
 
 ## 1. 用户原始目标
 
@@ -24,7 +24,7 @@
 - 技术背景：待填写
 - 触发原因：待填写
 - 和其他任务的关系：待填写
-- 来自项目级进度总账的相关信息：待填写
+- 来自任务进度总账的相关信息：待填写
 
 ## 3. 本次目标
 
@@ -282,17 +282,17 @@
 
 ## 16. 总账同步要求
 
-本任务和项目级总账的同步规则：
+本任务和任务总账的同步规则：
 
-- 新建本任务后，必须把任务登记到 `{TASK_DOC_ROOT}/project-progress-ledger.md` 的 `任务总览`
+- 新建本任务后，必须把任务登记到 `{TASK_DOC_ROOT}/{task_slug}/project-progress-ledger.md` 的 `任务总览`
 - 本任务每完成一轮执行后，必须更新总账中的任务状态和当前步骤
-- 本任务出现跨任务阻塞时，必须更新总账中的 `当前阻塞`
+- 本任务出现阻塞时，必须更新总账中的 `当前阻塞`
 - 本任务形成长期决策时，必须更新总账中的 `全局决策记录`
 - 本任务完成、暂停或取消时，必须更新总账中的任务状态
 
 ## 17. 相关文档路径
 
-- 项目级总账：{TASK_DOC_ROOT}/project-progress-ledger.md
+- 任务总账：{TASK_DOC_ROOT}/{task_slug}/project-progress-ledger.md
 - 本任务规划：{TASK_DOC_ROOT}/{task_slug}/plan.md
 - 本任务步骤：{TASK_DOC_ROOT}/{task_slug}/steps.md
 - 当前下一步 Prompt：{TASK_DOC_ROOT}/{task_slug}/next-prompt.md
@@ -305,7 +305,7 @@
 继续本任务前，必须先读取：
 
 - 项目级规则文件，例如 `CLAUDE.md`、`AGENTS.md`、README、CI 配置
-- 项目级总账：`{TASK_DOC_ROOT}/project-progress-ledger.md`
+- 任务总账：`{TASK_DOC_ROOT}/{task_slug}/project-progress-ledger.md`
 - 本任务规划：`{TASK_DOC_ROOT}/{task_slug}/plan.md`
 - 本任务步骤：`{TASK_DOC_ROOT}/{task_slug}/steps.md`
 - 本任务交接：`{TASK_DOC_ROOT}/{task_slug}/handoff.md`
@@ -313,6 +313,6 @@
 
 如果 `handoff.md` 显示上一轮尚未人工确认，不要生成下一步 Prompt。
 
-如果 `project-progress-ledger.md` 显示本任务已暂停、取消或存在跨任务阻塞，不要生成下一步 Prompt，先要求用户确认。
+如果 `project-progress-ledger.md` 显示本任务已暂停、取消或存在阻塞，不要生成下一步 Prompt，先要求用户确认。
 
 历史 Prompt 保存在 `{TASK_DOC_ROOT}/{task_slug}/prompts/`。除非用户明确要求回溯，或需要排查历史执行偏差、确认历史约束来源、审计旧决策，否则不要读取历史 Prompt，避免旧上下文干扰当前步骤。
