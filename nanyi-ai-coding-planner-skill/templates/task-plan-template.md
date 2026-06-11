@@ -313,6 +313,8 @@
 
 如果 `handoff.md` 显示上一轮尚未人工确认，不要生成下一步 Prompt。
 
+如果 `steps.md` 和 `handoff.md` 显示所有规划步骤已完成，不要生成下一步 Prompt。应提示用户确认当前执行结果，并明确说明确认后本任务无其他后续步骤。
+
 如果 `project-progress-ledger.md` 显示本任务已暂停、取消或存在阻塞，不要生成下一步 Prompt，先要求用户确认。
 
 历史 Prompt 保存在 `{TASK_DOC_ROOT}/{task_slug}/prompts/`。除非用户明确要求回溯，或需要排查历史执行偏差、确认历史约束来源、审计旧决策，否则不要读取历史 Prompt，避免旧上下文干扰当前步骤。

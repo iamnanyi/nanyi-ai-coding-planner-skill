@@ -144,6 +144,7 @@ nanyi-ai-coding-planner-skill/templates/task-handoff-template.md
 - 为所有任务指定统一的任务集合根目录，例如 `docs/tasks` 或 `.ai_temp/docs/tasks`；每个大任务会在该根目录下创建独立 `{task_slug}/` 文件夹。
 - 每一轮执行后要求执行者更新 `handoff.md`。
 - 人工确认当前步骤后，再生成下一步 Prompt。
+- 如果所有规划步骤已经执行完，应提示用户确认当前执行结果，并明确说明确认后无其他后续步骤，不再生成下一步 Prompt。
 - 旧 Prompt 保存在任务的 `prompts/` 目录供人工追溯；除非需要诊断或审计，不要把旧 Prompt 提供给下一轮执行。
 - 如果任务发生暂停、阻塞或目标变化，同步更新该任务目录内的 `project-progress-ledger.md`。
 - 每步代码修改范围会尽量控制得比较小，建议自己审一遍；也可以把 `docs/tasks` 下的规划、进度和 check list 单独交给其他 AI 做辅助 Review。

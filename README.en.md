@@ -144,6 +144,7 @@ If the project does not provide validation commands, the Skill should say so ins
 - Set one task collection root for the project, such as `docs/tasks` or `.ai_temp/docs/tasks`; each large task creates an independent `{task_slug}/` folder under it.
 - Ask the implementer to update `handoff.md` after each execution round.
 - Generate the next prompt only after the current step has been reviewed or confirmed.
+- When all planned steps have been executed, ask the user to confirm the current result and state clearly that there are no further steps after confirmation; do not generate another next-step prompt.
 - Keep old prompts under the task `prompts/` directory for human traceability, but do not feed them into the next execution round unless needed for diagnosis or audit.
 - When a task is paused, blocked, or changed, update the `project-progress-ledger.md` inside that task directory.
 - Each step should keep the code change small enough for human review. You can also give the planning docs, progress docs, and checklists under `docs/tasks` to another AI assistant for an extra review pass.
