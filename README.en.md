@@ -8,7 +8,9 @@
 
 The Skill handles planning, codebase scanning, task documentation, and next-prompt generation. It does not directly change application code.
 
-The point is not to depend on the strongest model or a huge context window. The task state is written into documents. As long as the next tool can read those documents, you can copy `next-prompt.md` into a new conversation and continue the next step.
+The point is not to depend on the strongest model or a huge context window. The task state is written into documents. As long as the next tool can read those documents, you can use `next-prompt.md` to find the current prompt file, copy that prompt into a new conversation, and continue the next step.
+
+Each time the Skill generates an execution prompt, it saves that prompt as a new file under `prompts/`. `next-prompt.md` is the current entry point. Historical prompts are kept for human traceability, but they are not part of the default execution context unless needed for diagnosis or audit.
 
 ## 2. What Problem It Solves
 
@@ -23,7 +25,7 @@ Complex AI coding tasks often fail because:
 
 `nanyi-ai-coding-planner-skill` keeps those facts in task documents, a project ledger, and per-task handoff notes.
 
-That makes the workflow less tied to a single AI coding tool. Use whichever tool still has quota, paste in the current `next-prompt.md`, and continue. A smaller model can still handle a small execution step because the context and constraints are already captured in the documents.
+That makes the workflow less tied to a single AI coding tool. Use whichever tool still has quota, use `next-prompt.md` to copy the current prompt file into that tool, and continue. A smaller model can still handle a small execution step because the context and constraints are already captured in the documents.
 
 ## 3. Core Workflow
 
@@ -92,6 +94,8 @@ docs/tasks/
     plan.md
     steps.md
     next-prompt.md
+    prompts/
+      step-01-read-and-map.md
     review-checklist.md
     handoff.md
 ```
@@ -101,7 +105,8 @@ Files:
 - `project-progress-ledger.md` tracks project-level progress, cross-task blockers, and task indexes.
 - `plan.md` captures the goal, boundaries, risks, current code evidence, and proposed approach.
 - `steps.md` contains the small-step execution plan.
-- `next-prompt.md` contains only the current next execution prompt. Copy it into a new AI conversation to continue the current step.
+- `next-prompt.md` is the current next-prompt entry point and points to the prompt that should be executed under `prompts/`.
+- `prompts/` stores every generated execution prompt. Implementing agents should ignore older prompts by default to avoid extra context interference.
 - `review-checklist.md` records review points for human validation.
 - `handoff.md` tracks per-task execution handoff state.
 
@@ -138,6 +143,7 @@ If the project does not provide validation commands, the Skill should say so ins
 - Set one task document root for the project, such as `docs/tasks` or `.ai_temp/docs/tasks`.
 - Ask the implementer to update `handoff.md` after each execution round.
 - Generate the next prompt only after the current step has been reviewed or confirmed.
+- Keep old prompts under the task `prompts/` directory for human traceability, but do not feed them into the next execution round unless needed for diagnosis or audit.
 - When a task is paused, blocked, or changed, update the project ledger.
 - Each step should keep the code change small enough for human review. You can also give the planning docs, progress docs, and checklists under `docs/tasks` to another AI assistant for an extra review pass.
 

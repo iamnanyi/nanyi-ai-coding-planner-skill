@@ -8,7 +8,9 @@
 
 这个 Skill 只负责规划、代码扫描、文档整理和下一步 Prompt 生成，不直接修改业务代码。
 
-它的设计重点不是依赖最强模型或超长上下文，而是把任务状态沉淀到文档里。只要下一轮工具能读取这些文档，再复制 `next-prompt.md` 的内容开启新对话，就可以继续执行当前下一步。
+它的设计重点不是依赖最强模型或超长上下文，而是把任务状态沉淀到文档里。只要下一轮工具能读取这些文档，根据 `next-prompt.md` 找到当前 Prompt 文件并复制其内容开启新对话，就可以继续执行当前下一步。
+
+每次生成执行 Prompt 时，Skill 会把当前 Prompt 作为新文件保存到 `prompts/` 目录，`next-prompt.md` 只作为当前入口。历史 Prompt 默认不作为执行上下文，除非需要人工回溯或排查历史偏差。
 
 ## 2. 它解决什么问题
 
@@ -23,7 +25,7 @@ AI Coding 在复杂任务中容易遇到这些问题：
 
 `nanyi-ai-coding-planner-skill` 通过任务文档、项目总账和单任务 handoff，把这些信息固定下来。
 
-这样做的结果是：任务不必强绑定某一个 AI 工具。哪个工具还有额度，就把当前 `next-prompt.md` 复制到哪个工具里继续；模型能力普通一些也可以完成小步任务，因为上下文和约束已经写在文档中。
+这样做的结果是：任务不必强绑定某一个 AI 工具。哪个工具还有额度，就根据 `next-prompt.md` 复制当前 Prompt 文件到哪个工具里继续；模型能力普通一些也可以完成小步任务，因为上下文和约束已经写在文档中。
 
 ## 3. 核心工作流
 
@@ -92,6 +94,8 @@ docs/tasks/
     plan.md
     steps.md
     next-prompt.md
+    prompts/
+      step-01-read-and-map.md
     review-checklist.md
     handoff.md
 ```
@@ -101,7 +105,8 @@ docs/tasks/
 - `project-progress-ledger.md` 记录项目级长期进度、跨任务阻塞和任务索引。
 - `plan.md` 记录单个任务的目标、边界、风险、代码现状和方案。
 - `steps.md` 记录小步执行计划。
-- `next-prompt.md` 只保存当前下一步执行 Prompt。把这个文件内容复制到新的 AI 对话中，就可以继续当前步骤。
+- `next-prompt.md` 保存当前下一步执行 Prompt 的入口，指向 `prompts/` 中当前应执行的 Prompt。
+- `prompts/` 保存每次生成过的执行 Prompt 历史。执行当前步骤时默认不要读取旧 Prompt，避免额外上下文干扰。
 - `review-checklist.md` 记录人工 Review 要点。
 - `handoff.md` 记录单任务执行交接状态。
 
@@ -138,6 +143,7 @@ nanyi-ai-coding-planner-skill/templates/task-handoff-template.md
 - 为每个任务指定统一的任务文档根目录，例如 `docs/tasks` 或 `.ai_temp/docs/tasks`。
 - 每一轮执行后要求执行者更新 `handoff.md`。
 - 人工确认当前步骤后，再生成下一步 Prompt。
+- 旧 Prompt 保存在任务的 `prompts/` 目录供人工追溯；除非需要诊断或审计，不要把旧 Prompt 提供给下一轮执行。
 - 如果任务发生暂停、阻塞或目标变化，同步更新项目总账。
 - 每步代码修改范围会尽量控制得比较小，建议自己审一遍；也可以把 `docs/tasks` 下的规划、进度和 check list 单独交给其他 AI 做辅助 Review。
 

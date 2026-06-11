@@ -13,6 +13,7 @@
 - 关联规划：{TASK_DOC_ROOT}/{task_slug}/plan.md
 - 关联步骤：{TASK_DOC_ROOT}/{task_slug}/steps.md
 - 当前下一步 Prompt：{TASK_DOC_ROOT}/{task_slug}/next-prompt.md
+- Prompt 历史目录：{TASK_DOC_ROOT}/{task_slug}/prompts/
 
 ## 1. 交接说明
 
@@ -38,7 +39,7 @@
 - 当前状态：未开始 / 进行中 / 等待人工确认 / 阻塞 / 暂停 / 已完成 / 取消
 - 当前步骤：Step ...
 - 当前步骤名称：待填写
-- 上一轮执行 Prompt：{TASK_DOC_ROOT}/{task_slug}/next-prompt.md
+- 上一轮执行 Prompt：{TASK_DOC_ROOT}/{task_slug}/prompts/step-XX-short-name.md
 - 下一步建议：待填写
 - 是否允许生成下一步 Prompt：是 / 否
 - 是否需要人工确认：是 / 否
@@ -173,8 +174,11 @@
 - 本任务规划：`{TASK_DOC_ROOT}/{task_slug}/plan.md`
 - 本任务步骤：`{TASK_DOC_ROOT}/{task_slug}/steps.md`
 - 本任务交接：`{TASK_DOC_ROOT}/{task_slug}/handoff.md`
+- 当前下一步 Prompt 入口：`{TASK_DOC_ROOT}/{task_slug}/next-prompt.md`
 
 如有必要，还应读取本轮实际修改过的文件。
+
+历史 Prompt 保存在 `{TASK_DOC_ROOT}/{task_slug}/prompts/`。默认不要读取历史 Prompt；只有在用户要求回溯、排查历史执行偏差、确认历史约束来源或审计旧决策时才读取。
 
 ## 14. 给下一轮 AI 的硬性提醒
 
@@ -185,5 +189,7 @@
 - 如果当前状态是“暂停”或“取消”，不要继续执行，先要求用户确认
 - 如果项目总账显示跨任务阻塞，不要继续执行，先要求用户确认
 - 只生成当前下一步 Prompt，不要生成后续步骤 Prompt
+- 生成新 Prompt 时写入 `prompts/` 下的新文件，不要覆盖或删除旧 Prompt
+- 执行当前步骤时默认忽略历史 Prompt，避免旧上下文干扰
 - 当前下一步执行完成后，必须更新本文件
 - 如果状态、阻塞或长期决策变化，必须同步更新项目级总账

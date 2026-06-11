@@ -296,6 +296,7 @@
 - 本任务规划：{TASK_DOC_ROOT}/{task_slug}/plan.md
 - 本任务步骤：{TASK_DOC_ROOT}/{task_slug}/steps.md
 - 当前下一步 Prompt：{TASK_DOC_ROOT}/{task_slug}/next-prompt.md
+- 当前 Prompt 历史目录：{TASK_DOC_ROOT}/{task_slug}/prompts/
 - Review 清单：{TASK_DOC_ROOT}/{task_slug}/review-checklist.md
 - 单任务交接：{TASK_DOC_ROOT}/{task_slug}/handoff.md
 
@@ -308,7 +309,10 @@
 - 本任务规划：`{TASK_DOC_ROOT}/{task_slug}/plan.md`
 - 本任务步骤：`{TASK_DOC_ROOT}/{task_slug}/steps.md`
 - 本任务交接：`{TASK_DOC_ROOT}/{task_slug}/handoff.md`
+- 当前下一步 Prompt：`{TASK_DOC_ROOT}/{task_slug}/next-prompt.md`
 
 如果 `handoff.md` 显示上一轮尚未人工确认，不要生成下一步 Prompt。
 
 如果 `project-progress-ledger.md` 显示本任务已暂停、取消或存在跨任务阻塞，不要生成下一步 Prompt，先要求用户确认。
+
+历史 Prompt 保存在 `{TASK_DOC_ROOT}/{task_slug}/prompts/`。除非用户明确要求回溯，或需要排查历史执行偏差、确认历史约束来源、审计旧决策，否则不要读取历史 Prompt，避免旧上下文干扰当前步骤。

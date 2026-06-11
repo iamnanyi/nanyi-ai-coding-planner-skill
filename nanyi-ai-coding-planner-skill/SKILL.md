@@ -17,7 +17,7 @@ description: 将一个较大的 AI Coding 目标拆解为可控、可审查、�
 4. 影响范围评估
 5. 目标规划文档
 6. 小步执行计划
-7. 当前下一步可独立使用的新对话 Prompt
+7. 当前下一步可独立使用的新对话 Prompt，并保留历史 Prompt 供追溯
 8. Review 清单
 9. 单任务交接文档
 10. 项目级进度总账
@@ -177,6 +177,12 @@ Skill 只负责读取和引用这些项目事实，不负责定义这些项目�
 
 不要一次性生成所有步骤的 Prompt。后续步骤可能因为人工 Review、问答、Bug 修复、目标调整、代码现状变化而改变。
 
+每次生成 Prompt 时，必须按需生成一个新的历史 Prompt 文件，不要只覆盖旧内容导致无法回看。
+
+`next-prompt.md` 只作为“当前下一步 Prompt 指针”和便捷入口；历史 Prompt 必须保存在 `prompts/` 目录中。
+
+继续执行任务的 agent 默认只读取当前 Prompt、规划文档、步骤文档、交接文档和项目总账。除非用户明确要求回溯，或需要排查历史执行偏差、确认历史约束来源、审计旧决策，否则不要读取历史 Prompt 文件，避免旧上下文干扰当前步骤。
+
 每次生成下一步 Prompt 前，必须先读取并基于这些已落实资料：
 
 - `{TASK_DOC_ROOT}/project-progress-ledger.md`
@@ -275,6 +281,8 @@ TASK_DOC_ROOT=<最终选择的任务文档根目录>
     plan.md
     steps.md
     next-prompt.md
+    prompts/
+      step-01-short-name.md
     review-checklist.md
     handoff.md
 ```
@@ -389,7 +397,39 @@ templates/task-handoff-template.md
 {TASK_DOC_ROOT}/{task_slug}/next-prompt.md
 ```
 
-作用：只记录当前下一步执行 Prompt。
+作用：记录当前下一步执行 Prompt 的入口信息，必须指向 `prompts/` 目录中的当前 Prompt 文件。
+
+推荐内容：
+
+- 当前步骤编号和名称
+- 当前 Prompt 文件路径
+- 生成时间
+- 是否允许执行
+- 如果需要跨工具复制，应提示用户复制当前 Prompt 文件的完整内容
+
+`next-prompt.md` 可以为了便捷同时粘贴当前 Prompt 全文，但不得删除 `prompts/` 中已经生成过的历史 Prompt。
+
+### prompts/
+
+路径：
+
+```text
+{TASK_DOC_ROOT}/{task_slug}/prompts/
+```
+
+作用：保存每次生成过的执行 Prompt 历史。
+
+命名建议：
+
+```text
+step-01-short-name.md
+step-02-short-name.md
+step-02-retry-01.md
+```
+
+如果同一步需要重新生成 Prompt，必须新建带 `retry` 或其他清晰后缀的文件，不要覆盖同一步旧 Prompt。
+
+历史 Prompt 只用于人工回溯、审计和必要的问题定位。默认执行下一步时不要把历史 Prompt 当作必读上下文。
 
 不要一次性生成所有步骤 Prompt。
 
@@ -581,13 +621,34 @@ TASK_DOC_ROOT=<最终选择的任务文档根目录>
 
 ### Step 9. 生成当前下一步执行 Prompt
 
-生成或更新：
+生成新的当前 Prompt 文件：
+
+```text
+{TASK_DOC_ROOT}/{task_slug}/prompts/step-XX-short-name.md
+```
+
+如果同一步重新生成，使用新的文件名，例如：
+
+```text
+{TASK_DOC_ROOT}/{task_slug}/prompts/step-XX-short-name-retry-01.md
+```
+
+然后更新当前入口文件：
 
 ```text
 {TASK_DOC_ROOT}/{task_slug}/next-prompt.md
 ```
 
 只生成当前下一步 Prompt，不要生成后续步骤 Prompt。
+
+不要覆盖或删除 `prompts/` 中已有的旧 Prompt。
+
+`next-prompt.md` 必须清楚写明当前应执行的 Prompt 文件路径。为了方便复制到新对话，也可以包含当前 Prompt 全文。
+
+当前 Prompt 必须明确提醒执行 agent：
+
+- 默认不要读取 `prompts/` 目录中的历史 Prompt
+- 只有在用户要求回溯、排查历史偏差、确认旧约束来源或审计旧决策时，才读取历史 Prompt
 
 如果任务刚完成规划，当前下一步通常是 Step 1。
 
@@ -621,6 +682,7 @@ TASK_DOC_ROOT=<最终选择的任务文档根目录>
 - {TASK_DOC_ROOT}/{task_slug}/plan.md
 - {TASK_DOC_ROOT}/{task_slug}/steps.md
 - {TASK_DOC_ROOT}/{task_slug}/next-prompt.md
+- {TASK_DOC_ROOT}/{task_slug}/prompts/<current-prompt-file>.md
 - {TASK_DOC_ROOT}/{task_slug}/review-checklist.md
 - {TASK_DOC_ROOT}/{task_slug}/handoff.md
 
@@ -634,7 +696,7 @@ Step ...
 
 ## 当前下一步 Prompt
 
-贴出当前下一步 Prompt 的完整内容。通常是 Step 1。不要贴出后续步骤 Prompt。
+贴出当前 Prompt 文件路径和完整内容。通常是 Step 1。不要贴出后续步骤 Prompt，也不要贴出历史 Prompt。
 ```
 
 如果存在阻塞问题，不要生成下一步执行 Prompt。先等待用户回答。
@@ -678,8 +740,12 @@ Step ...
 生成下一步 Prompt 时，只能生成一个 Prompt，并写入：
 
 ```text
-{TASK_DOC_ROOT}/{task_slug}/next-prompt.md
+{TASK_DOC_ROOT}/{task_slug}/prompts/step-XX-short-name.md
 ```
+
+然后更新 `{TASK_DOC_ROOT}/{task_slug}/next-prompt.md` 指向该文件。
+
+不要覆盖或删除历史 Prompt。
 
 不要生成后续步骤 Prompt。
 

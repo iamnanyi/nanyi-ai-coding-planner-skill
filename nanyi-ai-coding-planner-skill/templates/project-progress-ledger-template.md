@@ -107,9 +107,9 @@
 
 用于快速定位每个任务的关键文档。
 
-| task_slug | plan.md | steps.md | next-prompt.md | review-checklist.md | handoff.md |
-|---|---|---|---|---|---|
-| 待填写 | {TASK_DOC_ROOT}/{task_slug}/plan.md | {TASK_DOC_ROOT}/{task_slug}/steps.md | {TASK_DOC_ROOT}/{task_slug}/next-prompt.md | {TASK_DOC_ROOT}/{task_slug}/review-checklist.md | {TASK_DOC_ROOT}/{task_slug}/handoff.md |
+| task_slug | plan.md | steps.md | next-prompt.md | prompts/ | review-checklist.md | handoff.md |
+|---|---|---|---|---|---|---|
+| 待填写 | {TASK_DOC_ROOT}/{task_slug}/plan.md | {TASK_DOC_ROOT}/{task_slug}/steps.md | {TASK_DOC_ROOT}/{task_slug}/next-prompt.md | {TASK_DOC_ROOT}/{task_slug}/prompts/ | {TASK_DOC_ROOT}/{task_slug}/review-checklist.md | {TASK_DOC_ROOT}/{task_slug}/handoff.md |
 
 ## 11. 风险登记
 
